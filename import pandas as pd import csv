@@ -16,7 +16,7 @@ dic = {'0subject' : [subject],
     }
 dataframe = pd.DataFrame(dic)
 
-with open('/Users/leonielampe/Documents/Life/textfiles/old/df_test.csv', 'a') as f:
+with open('/Users/leonielampe/Documents/Life/textfiles/old/df_test.csv', 'w') as f:
     dataframe.to_csv(f, header=True)
     
 
