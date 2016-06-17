@@ -1,0 +1,58 @@
+import pandas as pd
+import csv
+
+#variables from first iteration
+subject = 'Leonie'
+tmean_wm = 35.02
+tmean_lesion = 12.01
+
+#init dataframe and save the file (do only ones, mind the order!)
+
+dic = {'0subject' : [subject],
+     '1wm_mean'  : [tmean_wm],
+     '2lesion_mean'  : [tmean_lesion]
+    }
+dataframe = pd.DataFrame(dic)
+
+with open('/Users/leonielampe/Documents/Life/textfiles/old/df_test.csv', 'a') as f:
+    dataframe.to_csv(f, header=True)
+    
+
+#function to store the new line    
+def store2file(subject, tmean_wm , tmean_lesion):
+  import csv
+  import pandas as pd
+    
+  d = {'0subject' : [subject],
+  '1mean_wm'  : [tmean_wm],
+  '2mean_lesion'  : [tmean_lesion]
+    }
+  df = pd.DataFrame(d)
+  with open('/Users/leonielampe/Documents/Life/textfiles/old/df_test.csv', 'a') as f:
+    df.to_csv(f, header=False)
+        
+# variables new
+subject = 'Kevin'
+tmean_wm = 56
+tmean_lesion = 45
+
+#run
+store2file(subject=subject, tmean_wm=tmean_wm, tmean_lesion= tmean_lesion)
+
+#test
+test = pd.read_csv('/Users/leonielampe/Documents/Life/textfiles/old/df_test.csv')
+test
+
+# integrate this into a nipype workflow
+from nipype.interfaces.utility import Function
+
+store2file_interface = pe.Node(Function(input_names=['subject', 'tmean_wm' , 'tmean_lesion'],
+                             output_names=["out_file"],
+                             function=store2file), name = 'RSFA_value_file')
+store2file_interface.input_names.subject = subject # wenn das nicht geht, dann vielleicht
+                                                  #dann vielleicht subject zu dem selectfiles dictionary hinzufügen
+    
+
+wf.connect(module_wm, 'out_stat', store2file_interface, 'tmean_wm')
+wf.connect(module_lesion, 'out_stat', store2file_interface, 'tmean_lesion')
+
