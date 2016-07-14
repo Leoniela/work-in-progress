@@ -48,13 +48,27 @@ test
 # integrate this into a nipype workflow
 from nipype.interfaces.utility import Function
 
-store2file_interface = pe.Node(Function(input_names=['subject', 'tmean_wm' , 'tmean_lesion'],
-                             output_names=["out_file"],
-                             function=store2file), name = 'RSFA_value_file')
-store2file_interface.input_names.subject = subject # wenn das nicht geht, dann vielleicht
-                                                  #dann vielleicht subject zu dem selectfiles dictionary hinzufügen
+def store2file(SIC, tmean_wm , tmean_gm, tmean_lesion):
+  import csv
+  import pandas as pd
     
+  d = {'0subject' : [SIC],
+       '1mean_wm'  : [tmean_wm],
+        '2mean_gm'  : [tmean_gm],
+        '3mean_lesion'  : [tmean_lesion]
+    }
+  df = pd.DataFrame(d)
+  with open('/scr/kennedy2/lampe/RSFA_ALFF/test/RSFA_test.csv', 'a') as f:
+      df.to_csv(f, header=False)
+      
 
-wf.connect(module_wm, 'out_stat', store2file_interface, 'tmean_wm')
-wf.connect(module_lesion, 'out_stat', store2file_interface, 'tmean_lesion')
+test_f = pe.Node(name='RSFA_value_file', interface=Function(input_names=['SIC', 'tmean_wm', 'tmean_gm' , 'tmean_lesion'],
+                             output_names=["out_file"],
+                             function=store2file))
+
+test_f.inputs.SIC = subject
+
+RSFA.connect(mean_mask3, 'out_stat', test_f, 'tmean_wm')
+RSFA.connect(mean_mask2, 'out_stat', test_f, 'tmean_gm')
+RSFA.connect(mean_mask1, 'out_stat', test_f, 'tmean_lesion')
 
